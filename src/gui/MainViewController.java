@@ -15,8 +15,10 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import model.sevices.DepartamentoService;
 
-public class MainViewController implements Initializable {
+@SuppressWarnings("hiding")
+public class MainViewController<DepartamentoListController> implements Initializable {
 
 	@FXML
 	private MenuItem menuItemVendedor;
@@ -34,7 +36,7 @@ public class MainViewController implements Initializable {
 
 	@FXML
 	public void onMenuItemDepartamentoAction() {
-		loadView("/gui/Departamento.fxml");
+		loadView2("/gui/Departamento.fxml");
 	}
 
 	@FXML
@@ -46,9 +48,9 @@ public class MainViewController implements Initializable {
 	public void initialize(URL uri, ResourceBundle rb) {
 	}
 
-	private synchronized void loadView(String absoluteName) {
+	private synchronized void loadView(String absoluteNome) {
 		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteNome));
 			VBox newVBox = loader.load();
 			
 			Scene mainScene = Main.getMainScene();
@@ -58,6 +60,28 @@ public class MainViewController implements Initializable {
 			mainVBox.getChildren().clear();
 			mainVBox.getChildren().add(mainMenu);
 			mainVBox.getChildren().addAll(newVBox.getChildren());
+		} 
+		catch (IOException e) {
+			Alerts.showAlert("IO Exception", "Erro ao carregar a pagina", e.getMessage(), AlertType.ERROR);
+		}
+	}
+	
+	private synchronized void loadView2(String absoluteNome) {
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteNome));
+			VBox newVBox = loader.load();
+			
+			Scene mainScene = Main.getMainScene();
+			VBox mainVBox = (VBox)((ScrollPane) mainScene.getRoot()).getContent();
+			
+			Node mainMenu = mainVBox.getChildren().get(0);
+			mainVBox.getChildren().clear();
+			mainVBox.getChildren().add(mainMenu);
+			mainVBox.getChildren().addAll(newVBox.getChildren());
+			
+			DepartamentoListController controller = loader.getController();
+			controller.setDapartamentoService(new DepartamentoService());
+			controller.updateTableView();
 		} 
 		catch (IOException e) {
 			Alerts.showAlert("IO Exception", "Erro ao carregar a pagina", e.getMessage(), AlertType.ERROR);
